@@ -2,27 +2,34 @@
 #define __LINKEDLIST__
 
 /*
-    There's a few concepts of OOP.
-    I also rename the global functions with the filename first.
-    I'll use this module in another data structure then
-    I need to do both things to avoid name conflict.
+    You're welcome.
 
     By: Raphael Fellipe
 */
 
 
-struct Node_LinkedList {
-/*
-    A simple linked list node.
-*/
+struct Node {
+    /* A simple linked list node. */
     int data;
-    struct Node_LinkedList* next;
+    struct Node* next;
 
 };
 
 
-/* A root manager with pointer functions to deal with all list operations */
-struct Root_LinkedList {
+/* A root node */
+struct Root {
+
+    int length;    /* There's also a length variable */
+    struct Node* next;
+    struct Node* last;
+
+};
+
+ /* Important*/ struct Root* newRoot();   /* Initialize*/
+
+
+/* Node initialize, there's no need to be explicitly used */
+struct Node* initNode(int data);
 
 /* Name functions:
     push,
@@ -33,31 +40,11 @@ struct Root_LinkedList {
     displayAll,
 */
 
-    int length;    /* There's also a length variable */
-    struct Node_LinkedList* next;
-
-    // Functions
-    void (*push)(struct Root_LinkedList** root, int data);
-    void (*pop)(struct Root_LinkedList** root);
-    struct Node_LinkedList* (*retrieveNode)(struct Root_LinkedList** root, int index);
-    void (*insert)(struct Root_LinkedList** root, int index, int data);
-    void (*removeNode)(struct Root_LinkedList** root, int index);
-    void (*displayAll)(struct Root_LinkedList** root);
-};
-
- /* Important*/ struct Root_LinkedList* newRoot_LinkedList();   /* Initialize*/
-
-
-/* Node initialize, there's no need to be explicitly used */
-struct Node_LinkedList* _LinkedList_initNode(int data);
-
-
-/* All functions mentioned in Root_LinkedList  */
-void _LinkedList_push(struct Root_LinkedList** root, int data);
-struct Node_LinkedList* _LinkedList_retrieveNode(struct Root_LinkedList** root, int index);
-void _LinkedList_pop(struct Root_LinkedList** root);
-void _LinkedList_insert(struct Root_LinkedList** root, int index, int data);
-void _LinkedList_removeNode(struct Root_LinkedList** root, int index);
-void _LinkedList_displayAll(struct Root_LinkedList** root);
+void push(struct Root** root, int data);
+struct Node* retrieveNode(struct Root** root, int index);
+void pop(struct Root** root);
+void insert(struct Root** root, int index, int data);
+void removeNode(struct Root** root, int index);
+void displayAll(struct Root** root);
 
 #endif

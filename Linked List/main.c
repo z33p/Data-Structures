@@ -3,23 +3,23 @@
 
 int main(int argc, char const *argv[]) {
 
-    struct Root_LinkedList* root = newRoot_LinkedList();
+    struct Root* root = newRoot();
 
-    root -> push(&root, 1);
-    root -> push(&root, 2);
-    root -> push(&root, 3);
-    root -> push(&root, 5);
-    root -> displayAll(&root);
+    push(&root, 1);
+    push(&root, 2);
+    push(&root, 3);
+    push(&root, 5);
+    displayAll(&root);
 
-    root -> pop(&root);
-    root -> displayAll(&root);
+    pop(&root);
+    displayAll(&root);
 
-    root -> insert(&root, 1, 5);
-    root -> insert(&root, 4, 4);
-    root -> displayAll(&root);
+    insert(&root, 1, 5);
+    insert(&root, 4, 4);
+    displayAll(&root);
 
-    root -> removeNode(&root, 1);
-    root -> displayAll(&root);
+    removeNode(&root, 1);
+    displayAll(&root);
 
     return 0;
 }

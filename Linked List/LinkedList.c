@@ -4,51 +4,55 @@
 #include "LinkedList.h"
 
 
-struct Node_LinkedList* _LinkedList_initNode(int data) {
-    struct Node_LinkedList* node = (struct Node_LinkedList*) malloc(sizeof(struct Node_LinkedList));
+struct Node* initNode(int data) {
+    struct Node* node = (struct Node*) malloc(sizeof(struct Node));
     if (node == NULL) {
         puts("Insufficient memory!");
         exit(1);
     }
-    node -> data = data;
-    node -> next = NULL;
+    node->data = data;
+    node->next = NULL;
 
     return node;
 }
 
 
-void _LinkedList_push(struct Root_LinkedList** root, int data) {
-    struct Node_LinkedList* new_LinkedList_Node = _LinkedList_initNode(data);
-    if ((*root) -> length == 0) {
-        /* When the linked list is empty */
-        (*root) -> next = new_LinkedList_Node;
+struct Root* newRoot() {
+    struct Root* root = (struct Root*) malloc(sizeof(struct Root));
+    root->length = 0;
 
-    } else {
+    root->next = NULL;
+    root->last = NULL;
 
-        struct Node_LinkedList* temp = (*root) -> next;
-        while(temp -> next != NULL) {
-            temp = temp -> next;
-        }
-
-        temp -> next = new_LinkedList_Node;
-    }
-
-
-    (*root) -> length++;
+    return root;
 }
 
 
-struct Node_LinkedList* _LinkedList_retrieveNode(struct Root_LinkedList** root, int index) {
-    if ((*root) -> length == 0) {
-        puts("Erro: Linked list is empty!");
+void push(struct Root** root, int data) {
+    struct Node* newNode = initNode(data);
+    if ((*root)->next == NULL) {
+        (*root)->next = newNode;
+        (*root)->last = newNode;
+
+    } else {
+        (*root)->last->next = newNode;
+        (*root)->last = newNode;
+    }
+
+    (*root)->length++;
+}
+
+
+struct Node* retrieveNode(struct Root** root, int index) {
+    if ((*root)->next == NULL) {
+        puts("Error: Linked list is empty!");
         exit(1);
     }
 
-    if (index > 0 && index <= (*root) -> length) {
-
-        struct Node_LinkedList* temp = (*root) -> next;
+    if (index > 0 && index <= (*root)->length) {
+        struct Node* temp = (*root)->next;
         for (int i = 1; i < index; i++) {
-            temp = temp -> next;
+            temp = temp->next;
         }
         return temp;
     }
@@ -58,106 +62,114 @@ struct Node_LinkedList* _LinkedList_retrieveNode(struct Root_LinkedList** root, 
 }
 
 
-void _LinkedList_pop(struct Root_LinkedList** root) {
-    if ((*root) -> length == 0) {
+void pop(struct Root** root) {
+    if ((*root)->length == 0) {
         puts("Erro: Linked list is empty!");
 
     } else {
-        struct Node_LinkedList* newLast_LinkedList_Node = _LinkedList_retrieveNode(root, (*root) -> length -1);
-        struct Node_LinkedList* oldLast_LinkedList_Node = newLast_LinkedList_Node -> next;
-        newLast_LinkedList_Node -> next = NULL;
-        free(oldLast_LinkedList_Node);
-        (*root) -> length--;
+        struct Node* newLastNode = retrieveNode(root, (*root)->length -1);
+        struct Node* oldLastNode = newLastNode->next;
+        newLastNode->next = NULL;
+        free(oldLastNode);
+        (*root)->last = newLastNode;
+        (*root)->length--;
     }
 }
 
 
-void _LinkedList_insert(struct Root_LinkedList** root, int index, int data) {
+void insert(struct Root** root, int index, int data) {
     if (index == 0) {
-        puts("You can't insert into root!");
+        puts("Error: Linked List You can't insert into root!");
         exit(1);
     }
     if (index == 1) {
-        if ((*root) -> length == 0) {
-            _LinkedList_push(root, data);
+        if ((*root)->next == NULL) {
+            push(root, data);
 
         } else {
-            struct Node_LinkedList* new_LinkedList_Node = _LinkedList_initNode(data);
-            struct Node_LinkedList* posterior = (*root) -> next;
-            new_LinkedList_Node -> next = posterior;
-            (*root) -> next = new_LinkedList_Node;
+            struct Node* newNode = initNode(data);
+            struct Node* posterior = (*root)->next;
+            newNode->next = posterior;
+            (*root)->next = newNode;
         }
     } else {
 
-        struct Node_LinkedList* previous =  _LinkedList_retrieveNode(root, index -1);
-        if (previous -> next == NULL) {
-            _LinkedList_push(root, data);
-            return;
+        struct Node* previous =  retrieveNode(root, index -1);
+        if (previous->next == NULL) {
+            push(root, data);
 
         } else {
-            struct Node_LinkedList* new_LinkedList_Node = _LinkedList_initNode(data);
-            new_LinkedList_Node -> next = previous -> next;
-            previous -> next = new_LinkedList_Node;
+            struct Node* newNode = initNode(data);
+            newNode->next = previous->next;
+            previous->next = newNode;
         }
     }
 
-    (*root) -> length++;
+    (*root)->length++;
 }
 
 
-void _LinkedList_removeNode(struct Root_LinkedList** root, int index) {
+void removeNode(struct Root** root, int index) {
 
     if (index == 1) {
-        struct Node_LinkedList* temp = (*root) -> next;
-        (*root) -> next = ((*root) -> next) -> next;
+        struct Node* temp = (*root)->next;
+        (*root)->next = ((*root)->next)->next;
         free(temp);
     } else {
-        struct Node_LinkedList* previous = _LinkedList_retrieveNode(root, index -1);
-        if (previous -> next == NULL) {
+        struct Node* previous = retrieveNode(root, index -1);
+        if (previous->next == NULL) {
             puts("Error: Index out of range");
             exit(1);
         }
 
-        struct Node_LinkedList* node = previous -> next;
-        if (node -> next == NULL) {
-            _LinkedList_pop(root);
+        struct Node* node = previous->next;
+        if (node->next == NULL) {
+            pop(root);
 
         } else {
-            struct Node_LinkedList* posterior = node -> next;
-            previous -> next = posterior;
+            struct Node* posterior = node->next;
+            previous->next = posterior;
             free(node);
         }
     }
 
-    (*root) -> length--;
+    (*root)->length--;
 }
 
 
-void _LinkedList_displayAll(struct Root_LinkedList** root) {
+void displayAll(struct Root** root) {
     int index = 1;
     puts("");
 
-    struct Node_LinkedList* temp = (*root) -> next;
-    while (temp -> next != NULL) {
-        printf("Index %d: data = %d\n         address = %p\n", index, temp -> data, temp -> next);
-        temp = temp -> next;
+    struct Node* temp = (*root)->next;
+    while (temp->next != NULL) {
+        printf("Index %d: data = %d\n         address = %p\n", index, temp->data, temp->next);
+        temp = temp->next;
         index++;
     }
-    printf("Index %d: data = %d\n         address = %p\n\n", index, temp -> data, temp -> next);
+    printf("Index %d: data = %d\n         address = %p\n\n", index, temp->data, temp->next);
 }
 
 
-struct Root_LinkedList* newRoot_LinkedList() {
-    struct Root_LinkedList* root = (struct Root_LinkedList*) malloc(sizeof(struct Root_LinkedList));
-    root -> length = 0;
+int main(int argc, char const *argv[]) {
 
-    // Functions
-    root -> push = _LinkedList_push;
-    root -> pop = _LinkedList_pop;
-    root -> retrieveNode = _LinkedList_retrieveNode;
-    root -> insert = _LinkedList_insert;
-    root -> removeNode = _LinkedList_removeNode;
-    root -> displayAll = _LinkedList_displayAll;
+    struct Root* root = newRoot();
 
-    return root;
+    push(&root, 1);
+    push(&root, 2);
+    push(&root, 3);
+    push(&root, 5);
+    displayAll(&root);
+
+    pop(&root);
+    displayAll(&root);
+
+    insert(&root, 1, 5);
+    insert(&root, 4, 4);
+    displayAll(&root);
+
+    removeNode(&root, 1);
+    displayAll(&root);
+
+    return 0;
 }
