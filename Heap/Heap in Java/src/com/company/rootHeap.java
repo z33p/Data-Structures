@@ -6,193 +6,200 @@ public class rootHeap {
     private Heap next;
     private Heap last;
 
-
-    public rootHeap(Heap next, Heap last) {
+    public rootHeap() {
         this.length = 0;
-        this.next = next;
-        this.last = last;
+        this.next = null;
+        this.last = null;
     }
 
 
-    public void push(int data) {
+    public Heap retrieveNode(int index) {
+        Heap temp = this.next;
+
+        if (index == 0 || index > this.length -1) {
+            System.out.println("Index out of the range");
+            System.exit(1);
+        }
+
+        for (int i = 1; i < index; i++) {
+            temp = temp.getNext();
+        }
+
+        return temp;
+    }
+
+    private void swap(Heap parent, Heap child) {
+        if (parent.getNext() == child) {
+//            System.out.println("Parent: " + parent.getData() + " ::: Child: " + child.getData());
+            Heap nextChild = child.getNext();
+            child.setPrevious(null);
+            parent.setNext(nextChild);
+            child.setNext(parent);
+            parent.setPrevious(child);
+            this.next = child;
+
+            if (nextChild != null)
+                nextChild.setPrevious(parent);
+
+        } else if (this.next.getNext().getNext() == child) {
+//            System.out.println("Parent: " + parent.getData() + " ::: Child: " + child.getData());
+
+            Heap middle = this.next.getNext();
+            Heap nextChild = child.getNext();
+            middle.setPrevious(child);
+            middle.setNext(parent);
+            parent.setNext(nextChild);
+            child.setPrevious(null);
+            child.setNext(middle);
+//            System.out.println("Middle: " + middle.getData() + " ::: child: " + child.getData());
+            parent.setPrevious(middle);
+            this.next = child;
+
+            if (parent.getNext() != null)
+                parent.getNext().setPrevious(parent);
+
+        } else {
+//            System.out.println("Parent: " + parent.getData() + " ::: Child: " + child.getData());
+            Heap nextParent = parent.getNext();
+            Heap previousParent = parent.getPrevious();
+            Heap nextChild = child.getNext();     // It could be null
+            Heap previousChild = child.getPrevious();
+
+            if (previousParent != null)
+                previousParent.setNext(child);
+            previousChild.setNext(parent);
+
+            nextParent.setPrevious(child);
+            if (nextChild != null)
+                nextChild.setPrevious(parent);
+
+            parent.setPrevious(previousChild);
+            parent.setNext(nextChild);   // System.out.println(parent.getData() + " " + nextChild);
+
+            child.setNext(nextParent);
+            child.setPrevious(previousParent);
+
+        }
+
+        Heap temp = this.next;
+        Heap previous = temp;
+        while(temp != null) {
+            previous = temp;
+            temp = temp.getNext();
+        }
+
+        this.last = previous;
+    }
+
+    private void swapParent(Heap child, int indexChild) {
+        int indexParent = indexChild / 2;
+        if (indexParent < 1)
+            return;
+
+//        System.out.println("index parent: " + indexParent + " ::: length: " + this.length);
+        Heap parent = retrieveNode(indexParent);
+
+        if (child.getData() > parent.getData()) {
+            swap(parent, child);
+            swapParent(child, indexParent);
+        }
+
+    }
+
+
+    public int push(int data) {
+
         if (this.next == null) {
             this.next = new Heap(data, null, null);
             this.last = this.next;
             this.length++;
+            return data;
+        }
+
+        this.last.setNext(new Heap(data, null, null));
+        this.last.getNext().setPrevious(this.last);
+        this.last = this.last.getNext();
+        this.length++;
+        swapParent(this.last, this.length);
+        return data;
+
+    }
+
+    public void swapChildren(Heap parent, int indexParent) {
+        int indexChildLeft = indexParent * 2;
+
+        if (indexChildLeft < this.length) {
+            Heap childLeft = retrieveNode(indexChildLeft);
+//            System.out.println("Child left: " + childLeft.getData() + " ::: Length: " + this.length);
+            Heap childRight = childLeft.getNext();
+            Heap child;
+            int indexChild;
+            if (childRight == null) {
+                child = childLeft;
+                indexChild = indexChildLeft;
+            }
+
+            else if (childLeft.getData() > childRight.getData()) {
+                child = childLeft;
+                indexChild = indexChildLeft;
+            }
+
+            else {
+                child = childRight;
+                indexChild = indexChildLeft + 1;
+            }
+            if (child.getData() > parent.getData()) {
+                swap(parent, child);
+                if (this.next == parent)
+                    this.next = child;
+            }
+            swapChildren(parent, indexChild);
+        }
+    }
 
 
-        } else {
-            Heap temp = this.last;
-            this.last = new Heap(data, null, temp);
-            temp.setNext(this.last);
-            int index = ++this.length;
+    public void extractMax() {
+        System.out.printf("Extracted: %d\n", this.next.getData());
+        if (this.length > 1) {
+//            System.out.println("Next: " + this.next.getData() + " ::: Last: " + this.last.getData());
+            Heap parent = this.next;
+            Heap child = this.last;
+            swap(this.next, this.last);
 
-            swapParent(this.last, index);
+            this.next = child;
+            this.last = parent.getPrevious();
+            this.last.setNext(null);
+
+            swapChildren(this.next, 1);
+        } else
+            this.next = null;
+
+        this.length--;
+    }
+
+    public void heapSort() {
+        int len = this.length;
+        for (int i = 0; i < len; i++) {
+            extractMax();
         }
     }
 
     public void displayAll() {
         Heap temp = this.next;
+        Heap previous = null;
         int index = 1;
+        while (temp != null) {
+            System.out.printf(
+                    "%d. data: %d\n    previous: %s\n    last: %d\n\n",
+                    index++,
+                    temp.getData(),
+                    previous == null ? "Null" : previous == temp.getPrevious() ? "True" : "False",
+                    this.last.getData()
+            );
 
-        while(temp != null) {
-            System.out.printf("%d. data: %d\n   previous: ", index, temp.getData());
-            System.out.print(System.identityHashCode(temp.getPrevious()));
-            System.out.print("\n   next: ");
-            System.out.print(System.identityHashCode(temp.getNext()));
-            System.out.printf("\n   myHash: ");
-            System.out.print(System.identityHashCode(temp));
-            System.out.println("\n");
 
+            previous = temp;
             temp = temp.getNext();
-            index++;
         }
-    }
-
-    public Heap retrieveNode(int index) {
-        if (index > this.length || index < 1) {
-            System.out.println("Retrieve node function error: index out of range!");
-            System.exit(1);
-
-        }
-
-        Heap temp = this.next;
-        int count = 1;
-        while (count < index) {
-            temp = temp.getNext();
-            count++;
-        }
-
-        return temp;
-
-    }
-
-    public void swap(Heap parent, Heap child) {
-
-        if (parent.getPrevious() != null) {
-            parent.getPrevious().setNext(child);
-        }
-
-        if (child.getNext() != null) {
-            child.getNext().setPrevious(parent);
-        }
-
-        Heap childPrevious = child.getPrevious();
-        childPrevious.setNext(parent);
-
-        Heap parentNext = parent.getNext();
-
-        Heap parentPrevious = null;
-        if (parent.getPrevious() != null) {
-            parentPrevious = parent.getPrevious();
-        }
-        parentNext.setPrevious(child);
-
-        parent.setNext(child.getNext());
-        parent.setPrevious(child.getPrevious());
-
-        child.setNext(parentNext);
-        child.setPrevious(parentPrevious);
-    }
-
-
-    public void swapParent(Heap child, int indexChild) {
-        int indexParent = indexChild / 2;
-        Heap parent = retrieveNode(indexParent);
-
-        if (child.getData() > parent.getData()) {
-            swap(parent, child);
-
-            if (indexParent == 1) {
-                this.next = child;
-                this.last = retrieveNode(this.length);
-
-
-            } else {
-                swapParent(child, indexParent);
-            }
-        }
-    }
-
-    public void swapChildren(Heap parent, int indexParent) {
-
-        int indexLeftChild = indexParent * 2;
-        if (indexLeftChild < this.length) {
-            Heap leftChild = retrieveNode(indexLeftChild);
-            Heap rigthChild = null;
-            Heap child = null;
-            int indexChild;
-            if (leftChild.getNext() == null) {
-                child = leftChild;
-                indexChild = indexLeftChild;
-            } else {
-                rigthChild = leftChild.getNext();
-
-                if (leftChild.getData() > rigthChild.getData()) {
-                    child = leftChild;
-                    indexChild = indexLeftChild;
-
-                } else {
-                    child = rigthChild;
-                    indexChild = indexLeftChild + 1;
-                }
-            }
-
-            if (child.getData() > parent.getData()) {
-                swap(parent, child);
-                if (indexParent == 1) {
-                    this.next = child;
-                    this.last = retrieveNode(this.length);
-
-                }
-
-                swapChildren(child, indexChild);
-            }
-        }
-    }
-
-    public void extractMax() {
-        // System.out.printf("Extracted: %d\n", this.next.getData());
-        if (this.next == null) {
-            System.out.println("The heap is empty!");
-            System.exit(1);
-
-        } else if(this.next != this.last) {
-            Heap parent = this.next;
-            Heap child = this.last;
-
-            swap(parent, child);
-            this.last = parent.getPrevious();
-            parent.getPrevious().setNext(null);
-            this.next = child;
-            this.length--;
-
-            swapChildren(this.next, 1);
-
-        }
-    }
-
-    public void heapSort() {
-        int count = this.length;
-        for (int i = 0; i < count; i++) {
-            System.out.println(this.next.getData());
-            extractMax();
-        }
-    }
-
-    public Heap getNext() {
-        return next;
-    }
-
-    public void setNext(Heap next) {
-        this.next = next;
-    }
-
-    public Heap getLast() {
-        return last;
-    }
-
-    public void setLast(Heap last) {
-        this.last = last;
     }
 }

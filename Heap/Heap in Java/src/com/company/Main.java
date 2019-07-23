@@ -1,21 +1,21 @@
 package com.company;
 
-
+import java.util.Random;
 
 public class Main {
 
     public static void main(String[] args) {
-        rootHeap lista = new rootHeap(null, null);
-        lista.push(11);
-        lista.push(13);
-        lista.push(17);
-        lista.push(19);
-        lista.push(15);
-        lista.push(21);
-        lista.push(23);
+        rootHeap lista = new rootHeap();
+
+        Random rand = new Random();
+        lista.push(rand.nextInt(50));
+
+        for (int i = 0; i < 50000; i++) {
+            lista.push(rand.nextInt(800));
+
+        }
 
         lista.heapSort();
-
 
 
         // System.out.println(lista.retrieveNode(0).getData());

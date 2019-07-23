@@ -27,7 +27,7 @@ int hash(char* firstName) {
     int sum = 0;
     char letter = firstName[0];
     for (int i = 0; letter != '\0'; i++) {
-        sum += letter;
+        sum += letter * (i + 2) + 33;
         letter = firstName[i];
 
     }
@@ -112,6 +112,17 @@ int main(int argc, char const *argv[]) {
     insert(dict, "Pessoa");
     insert(dict, "Gato");
     insert(dict, "Monstro");
+    insert(dict, "Jinx");
+    insert(dict, "Jax");
+    insert(dict, "Riven");
+    insert(dict, "Lulu");
+    insert(dict, "Karma");
+    insert(dict, "Ezreal");
+    insert(dict, "Thresh");
+    insert(dict, "Gnar");
+
+
+
 
 
     displayAll(dict);
